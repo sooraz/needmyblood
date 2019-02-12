@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     EditText mUserName,mPassword;
+    EditText mEmail,mGender,mBGroup,mPLocation;
     TextView mErrorText;
     ProgressDialog pDialog;
     @Override
@@ -31,6 +32,11 @@ public class MainActivity extends AppCompatActivity {
         mUserName=findViewById(R.id.editText);
         mPassword=findViewById(R.id.editText2);
         mErrorText=findViewById(R.id.errorText);
+        mEmail=findViewById(R.id.email);
+        mGender=findViewById(R.id.gender);
+        mBGroup=findViewById(R.id.bgroup);
+        mPLocation=findViewById(R.id.plocation);
+        
     }
 
     public void start(View view) {
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 login(mUserName.getText().toString(),mPassword.getText().toString());
                 break;
             case R.id.register:
+                register(mUserName.getText().toString(),mPassword.getText().toString(),mEmail.getText().toString(),mGender.getText().toString(),mBGroup.getText().toString(),mPLocation.getText().toString());
                 break;
         }
     }
@@ -97,6 +104,76 @@ public class MainActivity extends AppCompatActivity {
                     params.put("name", name);
                     params.put("password", password);
                     //params.put("password", "password123");
+                    Log.d("sooraz", " in map " + params);
+
+                    return params;
+                }
+
+            };
+
+// Adding request to request queue
+            AppContoller.getInstance().addToRequestQueue(strReq);
+        }
+    }
+    private void register(final String name, final String password,final String mail,final String gender,final String bgroup,final String location) {
+        String url = "http://sooraz.000webhostapp.com/register.php";
+        if (name == null || name.equals("")) {
+            mErrorText.setVisibility(View.VISIBLE);
+            mErrorText.setText("fields missing");
+
+        } else if (password == null || password.equals("")) {
+            mErrorText.setVisibility(View.VISIBLE);
+            mErrorText.setText("enter password");
+        } else {
+            mErrorText.setVisibility(View.GONE);
+            pDialog = new ProgressDialog(this);
+            pDialog.setMessage("Loading...");
+            pDialog.show();
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    url,
+                    new Response.Listener<String>() {
+
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                Log.d("sooraz", response);
+                                JSONObject temp = new JSONObject(response);
+                                switch (temp.getInt("success")) {
+                                    case 0:
+                                        mErrorText.setVisibility(View.VISIBLE);
+                                        mErrorText.setText(temp.getString("message"));
+                                        break;
+                                    case 1:
+                                        Log.d("sooraz", "registered success");
+
+                                }
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            pDialog.hide();
+                        }
+                    }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("sooraz", "Error: " + error.getMessage());
+                    pDialog.hide();
+                }
+
+            }
+            ) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("name", name);
+                    params.put("password", password);
+                    params.put("mail", mail);
+                    params.put("gender", gender);
+                    params.put("bgroup", bgroup);
+                    params.put("location", location);
+                    //mail,final String gender,final String bgroup,final String location
                     Log.d("sooraz", " in map " + params);
 
                     return params;
