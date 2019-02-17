@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">NeedForBloodV1</string>
+    <string name="title_activity_after__login">After_Login</string>
 </resources>

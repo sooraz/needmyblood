@@ -8,7 +8,6 @@ $conn = new mysqli($servername, $username, $password, "id8154736_test");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-echo "vachindi";
 /*
  * Following code will create a new product row
  * All product details are read from HTTP Post Request
@@ -21,9 +20,11 @@ if (isset($_POST['name']) && isset($_POST['password'])) {
  
     $name = $_POST['name'];
     $roll = $_POST['password'];
-    $sql = "SELECT Name,Password from sooraz_webhost WHERE Name='".$name."' && Password='".$roll."')";
+    $sql = "SELECT * FROM my_blood WHERE Name='".$name."' && Password='".$roll."'";
     // check if row inserted or not
-    if ($conn->query($sql) === TRUE) {
+    $result=mysqli_query($conn,$sql);
+   $num= mysqli_num_rows($result);
+    if ($num > 0) {
         // successfully inserted into database
         $response["success"] = 1;
         $response["message"] = "valid login";

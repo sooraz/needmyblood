@@ -1,6 +1,8 @@
 package com.example.needforbloodv1;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     EditText mEmail,mGender,mBGroup,mPLocation;
     TextView mErrorText;
     ProgressDialog pDialog;
+    Context c;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         mUserName=findViewById(R.id.editText);
         mPassword=findViewById(R.id.editText2);
         mErrorText=findViewById(R.id.errorText);
-
+        c=this;
         
     }
 
@@ -72,10 +75,14 @@ public class MainActivity extends AppCompatActivity {
                                 switch (temp.getInt("success")) {
                                     case 0:
                                         mErrorText.setVisibility(View.VISIBLE);
-                                        mErrorText.setText(temp.getString("message"));
+                                        //mErrorText.setText(temp.getString("message"));
                                         break;
                                     case 1:
                                         Log.d("sooraz", "Logeed in success");
+                                        Intent i=new Intent(c,After_Login.class);
+                                        i.putExtra("name",name);
+                                        startActivity(i);
+                                        //activitys
 
                                 }
 
@@ -189,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
 //
 //// Adding request to request queue
 //            AppContoller.getInstance().addToRequestQueue(strReq);
+        setContentView(R.layout.activity_main);
 
     }
 }
