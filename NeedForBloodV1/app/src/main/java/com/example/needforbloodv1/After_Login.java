@@ -94,5 +94,60 @@ public class After_Login extends AppCompatActivity {
         AppContoller.getInstance().addToRequestQueue(jsonObjReq);
     }
 
+    public void search(View v){
+        final String url = "http://sooraz.000webhostapp.com/search.php";
+
+        final ProgressDialog pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
+        StringRequest jsonObjReq = new StringRequest(Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject temp = new JSONObject(response);
+                            switch (temp.getInt("success")) {
+                                case 1:
+                                    //show
+                                    break;
+                                default:
+                                    //error
+
+                            }
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        pDialog.hide();
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Log.d("sooraz", "Error: " + error.getMessage());
+                pDialog.hide();
+            }
+
+        }
+        ){
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("name", username);
+                //params.put("password", "password123");
+                Log.d("sooraz", " in map " + params);
+
+                return params;
+            }
+
+        };;
+
+// Adding request to request queue
+        AppContoller.getInstance().addToRequestQueue(jsonObjReq);
+    }
+
+
 
 }
