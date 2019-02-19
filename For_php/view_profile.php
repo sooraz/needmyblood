@@ -16,14 +16,22 @@ if ($conn->connect_error) {
 // array for JSON response
 $response = array(); 
 // check for required fields
-if (isset($_POST['name'])) {
+if (isset($_GET['name'])) {
  
-    $name = $_POST['name'];
+    $name = $_GET['name'];
     $sql = "SELECT * FROM my_blood WHERE Name='".$name."'";
     // check if row inserted or not
     $result=mysqli_query($conn,$sql);
    while($row = $result->fetch_assoc()) {
-        echo "id: " . $row["Name"]. " - Name: " . $row["Location_Permanent"]. " " . $row["Blood_Group"]. "<br>";
+        // echo "id: " . $row["Name"]. " - Name: " . $row["Location_Permanent"]. " " . $row["Blood_Group"]. "<br>";
+        $response["success"] = 1;
+        $response["location"] = $row["Location_Permanent"];
+        $response["mail"] = $row["Email"];
+        $response["gender"] = $row["Gender"];
+        $response["bgroup"] = $row["Blood_Group"];
+        $response["location_temp"] = $row["Location_temp"];
+        
+        echo json_encode($response);
     }
 }
 $conn->close();

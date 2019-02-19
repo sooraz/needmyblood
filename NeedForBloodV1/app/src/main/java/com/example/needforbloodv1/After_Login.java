@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -41,12 +42,15 @@ public class After_Login extends AppCompatActivity {
 
     }
     public void viewProfile(View v){
-        final String url = "http://sooraz.000webhostapp.com/view_profile.php";
-
+        final TextView profile=(TextView)findViewById(R.id.profile);
+        final String url = String.format("http://sooraz.000webhostapp.com/view_profile.php?param1=%1$s",username);
+//String.format(."http://somesite.com/some_endpoint.php?param1=%1$s&param2=%2$s",
+//                           username,
+//                           num2);
         final ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
         pDialog.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.POST,
+        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
                 url,
                 new Response.Listener<String>() {
 
@@ -56,13 +60,15 @@ public class After_Login extends AppCompatActivity {
                             JSONObject temp = new JSONObject(response);
                             switch (temp.getInt("success")) {
                                 case 1:
-                                    //show
+                                    Log.d("sooraz",response);
+                                    profile.setText(response);
                                     break;
                                 default:
                                     //error
 
                             }
                         }catch (Exception e) {
+                            Log.d("sooraz","error profile");
                             e.printStackTrace();
                         }
                         pDialog.hide();
@@ -76,19 +82,7 @@ public class After_Login extends AppCompatActivity {
             }
 
         }
-        ){
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("name", username);
-                //params.put("password", "password123");
-                Log.d("sooraz", " in map " + params);
-
-                return params;
-            }
-
-        };;
+        );
 
 // Adding request to request queue
         AppContoller.getInstance().addToRequestQueue(jsonObjReq);

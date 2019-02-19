@@ -15,5 +15,11 @@
         android:layout_height="wrap_content"
         android:onClick="viewProfile"
         android:text="Button" />
+    <TextView
+        android:id="@+id/profile"
+        android:layout_marginStart="100dip"
+        android:layout_marginTop="300dip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>
