@@ -116,12 +116,23 @@ public class After_Login extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONObject temp = new JSONObject(response);
-                            switch (temp.getInt("success")) {
-                                case 1:
-                                    profile.setText(response);
+                            switch (temp.getInt("tol_users")) {
+                                case 0:
+//                                    no users
+                                    profile.setText("sorry no users with your search request");
                                     break;
                                 default:
-                                    //error
+                                    profile.setText(response);
+                                   // Log.d("sooraz","temp "+temp.getString("0"));
+                                    int size=temp.getInt("tol_users");
+                                    for(int i=0;i<size;i++){
+                                        Log.d("sooraz","temp"+ i+"i "+temp.getString(Integer.toString(i)));
+                                        JSONObject looptemp = new JSONObject(temp.getString(Integer.toString(i)));
+                                        Log.d("sooraz","name"+looptemp.getString("name"));
+                                        Log.d("sooraz","bgroup"+looptemp.getString("bgroup"));
+                                        Log.d("sooraz","loc_p"+looptemp.getString("loc_p"));
+                                    }
+                                    break;
 
                             }
                         }catch (Exception e) {

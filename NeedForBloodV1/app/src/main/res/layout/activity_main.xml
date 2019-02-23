@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
+        android:hint="enter your name"
         android:layout_marginTop="100dip"
         android:layout_marginStart="100dip"/>
 
@@ -22,6 +22,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword"
+        android:hint="enter your password"
         android:layout_marginTop="200dip"
         android:layout_marginStart="100dip" />
 
@@ -29,7 +30,7 @@
         android:id="@+id/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Login"
         android:onClick="start"
         android:layout_marginTop="300dip"
         android:layout_marginStart="100dip" />
@@ -38,7 +39,7 @@
         android:id="@+id/register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Register"
         android:onClick="start"
         android:layout_marginTop="400dip"
         android:layout_marginStart="100dip" />
