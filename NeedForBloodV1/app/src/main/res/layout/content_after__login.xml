@@ -9,17 +9,58 @@
 
     <Button
         android:id="@+id/view_profile"
-        android:layout_marginStart="100dip"
+        android:layout_marginStart="50dip"
         android:layout_marginTop="100dip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="viewProfile"
-        android:text="Button" />
+        android:text="View_profile" />
+    <Button
+        android:layout_marginStart="200dip"
+        android:layout_marginTop="100dip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="search_layout"
+        android:text="search_icon" />
+    <FrameLayout
+        android:id="@+id/search_Layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dip"
+        android:visibility="gone"
+        >
+        <EditText
+            android:id="@+id/group_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="100dip"
+            android:hint="Enter Blood group"
+            />
+        <EditText
+            android:id="@+id/location_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="100dip"
+            android:layout_marginTop="100dip"
+            android:hint="Enter Location"
+            />
+         <Button
+             android:id="@+id/search_value"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginStart="100dip"
+             android:layout_marginTop="200dip"
+             android:onClick="search"
+             android:text="search"/>
+
+
+    </FrameLayout>
     <TextView
         android:id="@+id/profile"
-        android:layout_marginStart="100dip"
+        android:layout_marginStart="10dip"
         android:layout_marginTop="300dip"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 </RelativeLayout>

@@ -9,6 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -23,13 +25,20 @@ import java.util.Map;
 
 public class After_Login extends AppCompatActivity {
     private String username=null;
+    TextView profile;
+    FrameLayout search_layout;
+    EditText location_search,bgroup_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_after__login);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Button b=(Button)findViewById(R.id.view_profile);
+        //Button b=(Button)findViewById(R.id.view_profile);
+        profile=(TextView)findViewById(R.id.profile);
+        search_layout=(FrameLayout)findViewById(R.id.search_Layout);
+        location_search=(EditText)findViewById(R.id.location_search);
+        bgroup_search=(EditText)findViewById(R.id.group_search);
         username=getIntent().getStringExtra("name");
 //        FloatingActionButton fab = findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -42,8 +51,9 @@ public class After_Login extends AppCompatActivity {
 
     }
     public void viewProfile(View v){
-        final TextView profile=(TextView)findViewById(R.id.profile);
-        final String url = String.format("http://sooraz.000webhostapp.com/view_profile.php?param1=%1$s",username);
+        search_layout.setVisibility(View.GONE);
+        profile.setVisibility(View.VISIBLE);
+        final String url = String.format("http://sooraz.000webhostapp.com/view_profile.php?name=%1$s",username);
 //String.format(."http://somesite.com/some_endpoint.php?param1=%1$s&param2=%2$s",
 //                           username,
 //                           num2);
@@ -89,12 +99,16 @@ public class After_Login extends AppCompatActivity {
     }
 
     public void search(View v){
-        final String url = "http://sooraz.000webhostapp.com/search.php";
 
+        profile.setVisibility(View.VISIBLE);
+        search_layout.setVisibility(View.GONE);
+        String location=location_search.getText().toString();
+        String bgroup=bgroup_search.getText().toString();
+        final String url = String.format("http://sooraz.000webhostapp.com/search.php?location=%1$s&bgroup=%2$s",location,bgroup);
         final ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading...");
         pDialog.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.POST,
+        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
                 url,
                 new Response.Listener<String>() {
 
@@ -104,7 +118,7 @@ public class After_Login extends AppCompatActivity {
                             JSONObject temp = new JSONObject(response);
                             switch (temp.getInt("success")) {
                                 case 1:
-                                    //show
+                                    profile.setText(response);
                                     break;
                                 default:
                                     //error
@@ -124,24 +138,15 @@ public class After_Login extends AppCompatActivity {
             }
 
         }
-        ){
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("name", username);
-                //params.put("password", "password123");
-                Log.d("sooraz", " in map " + params);
-
-                return params;
-            }
-
-        };;
+        );
 
 // Adding request to request queue
         AppContoller.getInstance().addToRequestQueue(jsonObjReq);
     }
 
 
-
+    public void search_layout(View view) {
+        profile.setVisibility(View.GONE);
+        search_layout.setVisibility(View.VISIBLE);
+    }
 }
