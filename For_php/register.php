@@ -17,7 +17,7 @@ if (isset($_POST['name']) && isset($_POST['password'])&& isset($_POST['mail'])&&
     $gender = $_POST['gender'];
     $bgroup = $_POST['bgroup'];
     $loc = $_POST['location'];
-    $sql = "SELECT * FROM my_blood WHERE Name='".$name."' && Password='".$pass."'";
+    $sql = "SELECT * FROM my_blood WHERE Name='".$name."'";
     $result=mysqli_query($conn,$sql);
     $num= mysqli_num_rows($result);
     if($num>0){
