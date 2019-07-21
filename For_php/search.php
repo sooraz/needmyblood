@@ -38,21 +38,36 @@ $group_check=false;
     $group=$_GET['bgroup'];
     $sql=$sql2.$group."'";
  }
+// array for JSON response
+//$response = array(); 
+// check for required fields
 if ($location_check||$group_check) {
  
     // check if row inserted or not
     $result=mysqli_query($conn,$sql);
-    $num=0;
+    //$num= mysqli_num_rows($result);
+    //$response["tol_users"]=$num;
+    $num=1;
     $rows = array();
 
 //retrieve and print every record
 while($r = $result->fetch_assoc()){
-    $num++;
+    // $rows[] = $r; has the same effect, without the superfluous data attribute
     $rows[] = array('name' => $r["Name"],'bgroup' =>$r["Blood_Group"],'loc_p' =>$r["Location_Permanent"]);
-    
+    $num++;
 }
-$rows["tol_users"]=$num;
-   
+$rows["tol_users"]=--$num;
+   // while($row = $result->fetch_assoc()) {
+   //      // echo "id: " . $row["Name"]. " - Name: " . $row["Location_Permanent"]. " " . $row["Blood_Group"]. "<br>";
+   //      $response["number"] = $num;
+   //      $response["location"] = $row["Location_Permanent"];
+   //      $response["mail"] = $row["Email"];
+   //      $response["gender"] = $row["Gender"];
+   //      $response["bgroup"] = $row["Blood_Group"];
+   //      $response["location_temp"] = $row["Location_temp"];
+   //      $num++;
+   //      echo json_encode($response);
+   //  }
 echo json_encode($rows);
 }
 $conn->close();

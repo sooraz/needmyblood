@@ -19,16 +19,19 @@ $response = array();
 if (isset($_POST['name']) && isset($_POST['password'])) {
  
     $name = $_POST['name'];
-    $roll = $_POST['password'];
-    $sql = "SELECT * FROM my_blood WHERE Name='".$name."' && Password='".$roll."'";
+    $password = $_POST['password'];
+    $sql = "SELECT * FROM my_blood WHERE Name='".$name."' && Password='".$password."'";
     // check if row inserted or not
     $result=mysqli_query($conn,$sql);
    $num= mysqli_num_rows($result);
     if ($num > 0) {
-        // successfully inserted into database
         $response["success"] = 1;
         $response["message"] = "valid login";
- 
+        if(isset($_POST['fcm_token'])){
+            $fcm=$_POST['fcm_token'];
+            $sql = "UPDATE my_blood SET fcm_key='".$fcm."' WHERE Name='".$name."'";
+            mysqli_query($conn,$sql);
+        }
         // echoing JSON response
         echo json_encode($response);
     } else {
