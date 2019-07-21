@@ -2,9 +2,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-<RelativeLayout
-    android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <Button
         android:id="@+id/make_register"
         android:layout_width="wrap_content"
@@ -71,10 +72,22 @@
         android:inputType="textPassword"
         android:hint="enter a password"/>
 
+    <Button
+        android:id="@+id/browse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="900dip"
+        android:layout_marginLeft="100dip"
+        android:onClick="browse"
+        android:text="browse" />
+    <ImageView
+        android:id="@+id/image_browse"
+        android:layout_width="200dip"
+        android:layout_height="200dip"
+        android:layout_marginTop="800dip"
+        android:layout_marginLeft="200dip"
+        />
 
 
-
-
-
-</RelativeLayout>
+</FrameLayout>
 </ScrollView>
