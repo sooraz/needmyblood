@@ -7,8 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -19,6 +17,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -98,11 +99,15 @@ public class MainActivity extends AppCompatActivity {
             mErrorText.setVisibility(View.VISIBLE);
             mErrorText.setText("enter password");
         } else {
+            Log.d("sooraz","tes1");
             setToken();
+            Log.d("sooraz","tes2");
             mErrorText.setVisibility(View.GONE);
             pDialog = new ProgressDialog(this);
             pDialog.setMessage("Loading...");
             pDialog.show();
+
+            Log.d("sooraz","tes3");
             StringRequest strReq = new StringRequest(Request.Method.POST,
                     url,
                     new Response.Listener<String>() {
@@ -148,9 +153,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
+
                     params.put("name", name);
                     params.put("password", password);
-                    params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
+                    //params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
                     Log.d("sooraz", " in map " + params);
 
                     return params;
