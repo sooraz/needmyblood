@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("name", name);
                     params.put("password", password);
-                    params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
+                    //params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
                     Log.d("sooraz", " in map " + params);
 
                     return params;

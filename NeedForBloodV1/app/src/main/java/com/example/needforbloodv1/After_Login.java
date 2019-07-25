@@ -24,6 +24,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.bumptech.glide.Glide;
 import com.example.needforbloodv1.adapter.MyCustomAdapter;
 import com.example.needforbloodv1.sharedpref.NFBSharedPreference;
 
@@ -42,6 +43,7 @@ public class After_Login extends AppCompatActivity {
     EditText location_search,bgroup_search;
     ListView lv;
     Context c;
+    final private String META_PATH="http://sooraz.000webhostapp.com/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,19 +99,12 @@ public class After_Login extends AppCompatActivity {
                                 case 1:
                                     Log.d("sooraz",response);
                                     JSONObject resp = new JSONObject(response);
-                                    String img_bin=resp.getString("image");
+                                    String img_path=resp.getString("image_path");
                                     donor_profile.setText("location:"+resp.getString("location")+"\n"+
                                             "mail:"+resp.getString("mail")+"\n"+
                                             "gender:"+resp.getString("gender")+"\n"+
                                             "bgroup:"+resp.getString("bgroup"));
-                                    Log.d("sooraz", "img_bin "+img_bin);
-                                    byte [] encodeByte= Base64.decode(img_bin.split(",")[1],Base64.DEFAULT);
-                                    Log.d("sooraz", "encodeByte "+encodeByte);
-                                    Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-                                    Log.d("sooraz", "bitmap "+bitmap);
-                                    profile_img.setImageBitmap(bitmap);
-
-
+                                    Glide.with(c).load(META_PATH+img_path).into(profile_img);
                                     break;
                                 default:
                                     //error
@@ -163,18 +158,12 @@ public class After_Login extends AppCompatActivity {
                             JSONObject temp = new JSONObject(response);
                             switch (temp.getInt("success")) {
                                 case 1:JSONObject resp = new JSONObject(response);
-                                    String img_bin=resp.getString("image");
+                                    String img_path=resp.getString("image_path");
                                     profile.setText("location:"+resp.getString("location")+"\n"+
                                             "mail:"+resp.getString("mail")+"\n"+
                                             "gender:"+resp.getString("gender")+"\n"+
                                             "bgroup:"+resp.getString("bgroup"));
-                                    //Log.d("sooraz", "img_bin "+img_bin);
-                                    byte [] encodeByte= Base64.decode(img_bin.split(",")[1],Base64.DEFAULT);
-                                    //Log.d("sooraz", "encodeByte "+encodeByte);
-                                    Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-                                    //Log.d("sooraz", "bitmap "+bitmap);
-                                    profile_img.setImageBitmap(bitmap);
-
+                                    Glide.with(c).load(META_PATH+img_path).into(profile_img);
                                     //profile.setText(response);
                                     break;
                                 default:
@@ -236,11 +225,11 @@ public class After_Login extends AppCompatActivity {
                                 default:
 
                                     final ArrayList<List<String>> list = new ArrayList<List<String>>();
-                                    list.add(Arrays.asList("Name","Location","Blood_group"));
+                                    //list.add(Arrays.asList("Name","Location","Blood_group"));
                                     int size=temp.getInt("tol_users");
                                     for (int i = 0; i < size; ++i) {
                                         JSONObject looptemp = new JSONObject(temp.getString(Integer.toString(i)));
-                                        list.add(Arrays.asList(looptemp.getString("name"),looptemp.getString("loc_p"),looptemp.getString("bgroup")));
+                                        list.add(Arrays.asList(looptemp.getString("image_path"),looptemp.getString("name"),looptemp.getString("loc_p"),looptemp.getString("bgroup")));
                                     }
                                     final MyCustomAdapter adapter = new MyCustomAdapter(c,R.layout.list_item, list);
                                     lv.setAdapter(adapter);
