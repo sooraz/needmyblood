@@ -1,16 +1,14 @@
 package com.example.needforbloodv1;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,15 +17,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.needforbloodv1.adapter.MyCustomAdapter;
+import com.example.needforbloodv1.define.ServerFile;
 import com.example.needforbloodv1.sharedpref.NFBSharedPreference;
+import com.example.needforbloodv1.volley.MyVolley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -43,6 +40,7 @@ public class After_Login extends AppCompatActivity {
     EditText location_search,bgroup_search;
     ListView lv;
     Context c;
+    final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
     final private String META_PATH="http://sooraz.000webhostapp.com/";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +60,13 @@ public class After_Login extends AppCompatActivity {
         bgroup_search=(EditText)findViewById(R.id.group_search);
         lv=(ListView)findViewById(R.id.user_list);
         username=getIntent().getStringExtra("name");
-
+        MyVolley.setActivityHandler(responceHandler);
         initList();
     }
     private void initList(){
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                  //Log.d("sooraz",((TextView)view.findViewById(R.id.list_location)).getText().toString());
-                //mCurrDonor=((TextView)view.findViewById(R.id.list_name)).getText().toString();
                 display_Donor();
             }
         });
@@ -81,140 +77,74 @@ public class After_Login extends AppCompatActivity {
         search_list.setVisibility(View.GONE);
         search_layout.setVisibility(View.GONE);
         donor_profile_view.setVisibility(View.VISIBLE);
+        donor_profile.setVisibility(View.VISIBLE);
         profile_img.setVisibility(View.VISIBLE);
 
-        final String url = String.format("http://sooraz.000webhostapp.com/view_profile.php?name=%1$s",username);
-        final ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading...");
-        pDialog.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject temp = new JSONObject(response);
-                            switch (temp.getInt("success")) {
-                                case 1:
-                                    Log.d("sooraz",response);
-                                    JSONObject resp = new JSONObject(response);
-                                    String img_path=resp.getString("image_path");
-                                    donor_profile.setText("location:"+resp.getString("location")+"\n"+
-                                            "mail:"+resp.getString("mail")+"\n"+
-                                            "gender:"+resp.getString("gender")+"\n"+
-                                            "bgroup:"+resp.getString("bgroup"));
-                                    Glide.with(c).load(META_PATH+img_path).into(profile_img);
-                                    break;
-                                default:
-                                    //error
-
-                            }
-                        }catch (Exception e) {
-                            Log.d("sooraz","error profile");
-                            e.printStackTrace();
-                        }
-                        pDialog.hide();
-                        pDialog.dismiss();
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.d("sooraz", "Error: " + error.getMessage());
-                pDialog.hide();
-                pDialog.dismiss();
+        final String url = String.format(URL+"view_profile.php?name=%1$s",username);
+        MyVolley.connectGET(url,this);
+    }
+    //method for both donor and self
+    private void display_Profile(String responce,int profileType){
+        try {
+        JSONObject resp = new JSONObject(responce);
+        TextView temp=null;
+            if(resp.getInt("success")==1) {
+                String img_path = null;
+                img_path = resp.getString("image_path");
+                switch(profileType){
+                    case ServerFile.DISPLAYDONOR:
+                        temp=donor_profile;
+                        break;
+                    case ServerFile.DISPLAYPROFILE:
+                        temp=profile;
+                        break;
+                }
+                if(temp != null) {
+                    temp.setText("location:" + resp.getString("location") + "\n" +
+                            "mail:" + resp.getString("mail") + "\n" +
+                            "gender:" + resp.getString("gender") + "\n" +
+                            "bgroup:" + resp.getString("bgroup"));
+                    Log.d("sooraz", "location:" + resp.getString("location") + "\n" +
+                            "mail:" + resp.getString("mail") + "\n" +
+                            "gender:" + resp.getString("gender") + "\n" +
+                            "bgroup:" + resp.getString("bgroup"));
+                    Glide.with(c).load(META_PATH + img_path).into(profile_img);
+                }
             }
-
+            else{
+                //fail  send to server
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        );
-
-// Adding request to request queue
-        AppContoller.getInstance().addToRequestQueue(jsonObjReq);
     }
     public void viewProfile(View v) {
         search_layout.setVisibility(View.GONE);
         search_list.setVisibility(View.GONE);
         donor_profile_view.setVisibility(View.GONE);
+        donor_profile.setVisibility(View.VISIBLE);
         profile.setVisibility(View.VISIBLE);
         profile_img.setVisibility(View.VISIBLE);
         profile(username);
     }
     public void profile(String uname){
-        final String url = String.format("http://sooraz.000webhostapp.com/view_profile.php?name=%1$s",uname);
-//String.format(."http://somesite.com/some_endpoint.php?param1=%1$s&param2=%2$s",
-//                           username,
-//                           num2);
-        final ProgressDialog pDialog1 = new ProgressDialog(this);
-        pDialog1.setMessage("Loading...");
-        pDialog1.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject temp = new JSONObject(response);
-                            switch (temp.getInt("success")) {
-                                case 1:JSONObject resp = new JSONObject(response);
-                                    String img_path=resp.getString("image_path");
-                                    profile.setText("location:"+resp.getString("location")+"\n"+
-                                            "mail:"+resp.getString("mail")+"\n"+
-                                            "gender:"+resp.getString("gender")+"\n"+
-                                            "bgroup:"+resp.getString("bgroup"));
-                                    Glide.with(c).load(META_PATH+img_path).into(profile_img);
-                                    //profile.setText(response);
-                                    break;
-                                default:
-                                    //error
-
-                            }
-                        }catch (Exception e) {
-                            Log.d("sooraz","error profile");
-                            e.printStackTrace();
-                        }
-                        pDialog1.hide();
-                        pDialog1.dismiss();
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.d("sooraz", "Error: " + error.getMessage());
-                pDialog1.hide();
-                pDialog1.dismiss();
-            }
-
-        }
-        );
-
-// Adding request to request queue
-        AppContoller.getInstance().addToRequestQueue(jsonObjReq);
+        final String url = String.format(URL+"view_profile.php?name=%1$s",uname);
+        MyVolley.connectGET(url,this);
     }
 
-    public void search(View v){
 
-//        final mItemClickListner mItemListner=new mItemClickListner(
-//
-//        );
+    public void search(View v) {
 
         profile.setVisibility(View.GONE);
         search_layout.setVisibility(View.GONE);
         donor_profile_view.setVisibility(View.GONE);
         search_list.setVisibility(View.VISIBLE);
-        String location=location_search.getText().toString();
-        String bgroup=bgroup_search.getText().toString();
-        final String url = String.format("http://sooraz.000webhostapp.com/search.php?location=%1$s&bgroup=%2$s",location,bgroup);
-        final ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading...");
-        pDialog.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
+        String location = location_search.getText().toString();
+        String bgroup = bgroup_search.getText().toString();
+        final String url = String.format(URL + "search.php?location=%1$s&bgroup=%2$s", location, bgroup);
+        MyVolley.connectGET(url,this);
+    }
+    private void search(String response){
                         try {
                             JSONObject temp = new JSONObject(response);
                             switch (temp.getInt("tol_users")) {
@@ -240,43 +170,22 @@ public class After_Login extends AppCompatActivity {
                         }catch (Exception e) {
                             e.printStackTrace();
                         }
-                        pDialog.hide();
-                        pDialog.dismiss();
                     }
-
-                    private void setLister(ListView lv) {
-                        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    TextView temp=view.findViewById(R.id.list_name);
-                                    String name=temp.getText().toString();
-                                    mCurrDonor=name;
-                                    profile(name);
-                                profile.setVisibility(View.VISIBLE);
-                                search_list.setVisibility(View.GONE);
-                                donor_profile_view.setVisibility(View.GONE);
-                                search_layout.setVisibility(View.GONE);
-                            }
-                        });
-                    }
-                }, new Response.ErrorListener() {
-
+    private void setLister(ListView lv) {
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.d("sooraz", "Error: " + error.getMessage());
-                pDialog.hide();
-                pDialog.dismiss();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView temp=view.findViewById(R.id.list_name);
+                String name=temp.getText().toString();
+                mCurrDonor=name;
+                profile.setVisibility(View.VISIBLE);
+                profile(name);
+                search_list.setVisibility(View.GONE);
+                donor_profile_view.setVisibility(View.GONE);
+                search_layout.setVisibility(View.GONE);
             }
-
-        }
-
-        );
-
-
-// Adding request to request queue
-        AppContoller.getInstance().addToRequestQueue(jsonObjReq);
+        });
     }
-
 
     public void search_layout(View view) {
         profile.setVisibility(View.GONE);
@@ -320,26 +229,18 @@ public class After_Login extends AppCompatActivity {
 
     public void request(View view) {
         //notifiction to donar
-        sendNotification(mCurrDonor);
+        final String url = String.format(URL+"sendNotification.php?from_name=%1$s&to_name=%2$s",NFBSharedPreference.getUserName(c),mCurrDonor);
+        MyVolley.connectGET(url,this);
     }
-
-    private void sendNotification(String mCurrDonor) {
-        final String url = String.format("https://sooraz.000webhostapp.com/sendNotification.php?from_name=%1$s&to_name=%2$s",NFBSharedPreference.getUserName(c),mCurrDonor);
-        final ProgressDialog pDialog = new ProgressDialog(this);
+   //callback request
+    private void sendNotificationAck(String response) {
         Log.d("sooraz","mCurrDonor: "+mCurrDonor+" NFBSharedPreference.getUserName(c): "+NFBSharedPreference.getUserName(c));
-        pDialog.setMessage("Loading...");
-        pDialog.show();
-        StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
                         try {
                             JSONObject temp = new JSONObject(response);
                             switch (temp.getInt("success")) {
                                 case 1:
-                                    Log.d("sooraz","sendNotification response :"+response);
+//                                    Log.d("sooraz","sendNotification response :"+response);
+                                    Toast.makeText(After_Login.this, "sent request", Toast.LENGTH_SHORT).show();
                                     break;
                                 default:
                                     //error
@@ -349,25 +250,30 @@ public class After_Login extends AppCompatActivity {
                             Log.d("sooraz","error profile");
                             e.printStackTrace();
                         }
-                        pDialog.hide();
-                        pDialog.dismiss();
-                    }
-                }, new Response.ErrorListener() {
+    }
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.d("sooraz", "Error: " + error.getMessage());
-                pDialog.hide();
-                pDialog.dismiss();
-            }
-
-        }
-        );
-
-// Adding request to request queue
-        AppContoller.getInstance().addToRequestQueue(jsonObjReq);
+    public void showNotifications(View view) {
 
     }
+    private Handler responceHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.arg1){
+                case ServerFile.SEARCH:
+                    search(msg.obj.toString());
+                    break;
+                case ServerFile.SENDNOTIFICATION:
+                    sendNotificationAck(msg.obj.toString());
+                    break;
+                case ServerFile.DISPLAYDONOR:
+                case ServerFile.DISPLAYPROFILE:
+                    display_Profile(msg.obj.toString(),msg.arg1);
+                    break;
+
+
+            }
+        }
+    };
+
 }
 
 

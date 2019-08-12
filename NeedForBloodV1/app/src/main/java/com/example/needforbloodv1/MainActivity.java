@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MyPREFERENCES = "NFB" ;
     public static final String mFcm = "fcm";
+    final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
 
 
     static final int PICK_IMAGE_REQUEST = 1;
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         String uName=NFBSharedPreference.getUserName(c);
         if(uName.equals("0")) {
             setContentView(R.layout.activity_main);
+            NFBSharedPreference.clearData(c);
+            setToken();
             mUserName = findViewById(R.id.editText);
             mPassword = findViewById(R.id.editText2);
             mErrorText = findViewById(R.id.errorText);
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
     public void start(View view) {
         switch(view.getId()){
             case R.id.login:
-                login(mUserName.getText().toString(),mPassword.getText().toString());
+                login();
                 break;
             case R.id.register:
                 setContentView(R.layout.register);
@@ -87,9 +90,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-    private void login(final String name, final String password) {
-        NFBSharedPreference.clearData(c);
-        String url = "http://sooraz.000webhostapp.com/login.php";
+    private void login() {
+//        NFBSharedPreference.clearData(c);
+//        setToken();
+
+        mUserName=findViewById(R.id.editText);
+        mPassword=findViewById(R.id.editText2);
+        final String name=mUserName.getText().toString();
+        final String password=mPassword.getText().toString();
+        String url = URL+"login.php";
         if (name == null || name.equals("")) {
             mErrorText.setVisibility(View.VISIBLE);
             mErrorText.setText("enter name");
@@ -98,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
             mErrorText.setVisibility(View.VISIBLE);
             mErrorText.setText("enter password");
         } else {
-            setToken();
             mErrorText.setVisibility(View.GONE);
             pDialog = new ProgressDialog(this);
             pDialog.setMessage("Loading...");
@@ -150,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("name", name);
                     params.put("password", password);
-                    //params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
+                    params.put("fcm_token", NFBSharedPreference.getFCMKey(c));
                     Log.d("sooraz", " in map " + params);
 
                     return params;
@@ -174,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         final String name=mUserName.getText().toString(),password=mPassword.getText().toString(),gender=mGender.getText().toString(),location=mPLocation.getText().toString()
                 ,bgroup=mBGroup.getText().toString(),mail=mEmail.getText().toString();
         final String img=getImageString();
-        String url = "http://sooraz.000webhostapp.com/register.php";
+        String url = URL+"register.php";
             pDialog = new ProgressDialog(this);
             pDialog.setMessage("Loading...");
             pDialog.show();
@@ -252,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("sooraz", task.getResult().getToken());
                         token[1] = task.getResult().getToken();
                         NFBSharedPreference.setFCMKey(c,task.getResult().getToken());
+                        Log.d("sooraz","NFBSharedPreference settotken :"+NFBSharedPreference.getFCMKey(c));
                         try {
                             FirebaseInstanceId.getInstance().getToken(task.getResult().getToken(),"FCM");
                         } catch (IOException e) {

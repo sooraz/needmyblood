@@ -44,7 +44,9 @@ public class MyCustomAdapter  extends ArrayAdapter<List<String>> {
 //        Log.d("sooraz","in  getview path:"+path);
 
         RequestOptions myOptions = new RequestOptions()
-                .override(100, 100);
+                .override(100, 100)
+                .circleCrop();
+
 
         Glide.with(parent)
                 .asBitmap()

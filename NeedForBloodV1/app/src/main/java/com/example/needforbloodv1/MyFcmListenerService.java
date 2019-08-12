@@ -1,11 +1,13 @@
 package com.example.needforbloodv1;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -18,11 +20,14 @@ import java.util.Map;
 
 public class MyFcmListenerService extends FirebaseMessagingService {
     private static final String TAG = "MyFcmListenerService";
+//    private Context acContext=null;
 
     @Override
 
     public void onMessageReceived(RemoteMessage message){
         //String from = message.getFrom();
+
+
         Map data = message.getData();
         //String messagenote = data.get("message").toString();
         //String title = data.get("title").toString();
@@ -31,31 +36,22 @@ public class MyFcmListenerService extends FirebaseMessagingService {
         long when= Calendar.getInstance().getTimeInMillis();
 
 
-        NotificationManager notificationManager= (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("ms", "pani chudu");
-        notificationIntent.putExtras(bundle);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        notificationIntent.setData(Uri.parse("content://" + when));
-        PendingIntent intent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        startActivity(notificationIntent);
-
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+        super.onMessageReceived(message);
+        Log.d("msg", "onMessageReceived: " + message.getData().get("message"));
+        Intent intent = new Intent(this, After_Login.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        String channelId = "Default";
+        NotificationCompat.Builder builder = new  NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("pani chudu")
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setTicker("1")
-                .setSubText("2")
-                .setContentIntent(intent)
-                .setAutoCancel(true);
-                //.setContentText();
-
-
-        notificationManager.notify((int)when, mBuilder.build());
-
+                .setContentTitle(message.getNotification().getTitle())
+                .setContentText(message.getNotification().getBody()).setAutoCancel(true).setContentIntent(pendingIntent);;
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(channelId, "Default channel", NotificationManager.IMPORTANCE_DEFAULT);
+            manager.createNotificationChannel(channel);
+        }
+        manager.notify(0, builder.build());
     }
     @Override
     public void onNewToken(String s) {

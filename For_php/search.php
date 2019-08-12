@@ -1,7 +1,5 @@
 <?php
- $servername = "localhost";
-$username = "id8154736_root";
-$password = "123456789";
+include 'initiatedb.php';
 // Create connection
 $conn = new mysqli($servername, $username, $password, "id8154736_test");
 // Check connection
@@ -53,21 +51,12 @@ if ($location_check||$group_check) {
 //retrieve and print every record
 while($r = $result->fetch_assoc()){
     // $rows[] = $r; has the same effect, without the superfluous data attribute
-    $rows[] = array('name' => $r["Name"],'bgroup' =>$r["Blood_Group"],'loc_p' =>$r["Location_Permanent"]);
+    $rows[] = array('name' => $r["Name"],'bgroup' =>$r["Blood_Group"],'loc_p' =>$r["Location_Permanent"],
+    'image_path'=>$r["image_path"]);
     $num++;
 }
 $rows["tol_users"]=--$num;
-   // while($row = $result->fetch_assoc()) {
-   //      // echo "id: " . $row["Name"]. " - Name: " . $row["Location_Permanent"]. " " . $row["Blood_Group"]. "<br>";
-   //      $response["number"] = $num;
-   //      $response["location"] = $row["Location_Permanent"];
-   //      $response["mail"] = $row["Email"];
-   //      $response["gender"] = $row["Gender"];
-   //      $response["bgroup"] = $row["Blood_Group"];
-   //      $response["location_temp"] = $row["Location_temp"];
-   //      $num++;
-   //      echo json_encode($response);
-   //  }
+$row["serverResponce"]=4;
 echo json_encode($rows);
 }
 $conn->close();

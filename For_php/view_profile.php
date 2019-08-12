@@ -1,7 +1,5 @@
 <?php
- $servername = "localhost";
-$username = "id8154736_root";
-$password = "123456789";
+include 'initiatedb.php';
 // Create connection
 $conn = new mysqli($servername, $username, $password, "id8154736_test");
 // Check connection
@@ -30,12 +28,8 @@ if (isset($_GET['name'])) {
         $response["gender"] = $row["Gender"];
         $response["bgroup"] = $row["Blood_Group"];
         $response["location_temp"] = $row["Location_temp"];
-        $path=$row["image_path"];
-        $type = pathinfo($path, PATHINFO_EXTENSION);
-        $data = file_get_contents($path);
-        $base64 = 'data:image/' .$type. ';base64,' . base64_encode($data);
-        //echo $base64;
-        $response["image"] = $base64;
+        $response["image_path"]=$row["image_path"];
+        $response["serverResponce"]=2;
         echo json_encode($response);
     }
 }

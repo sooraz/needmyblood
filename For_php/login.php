@@ -1,7 +1,5 @@
 <?php
- $servername = "localhost";
-$username = "id8154736_root";
-$password = "123456789";
+include 'initiatedb.php';
 // Create connection
 $conn = new mysqli($servername, $username, $password, "id8154736_test");
 // Check connection
