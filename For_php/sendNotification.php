@@ -25,8 +25,8 @@ else{
 #prep the bundle
         $msg = array
         (
-            'body'  => 'From'.$_GET['from_name'],
-            'title' => 'Blood Request',
+            'body'  => $message,
+            'title' => 'Blood Request from'.$from,
             'icon'  => 'myicon',/*Default Icon*/
             'sound' => 'mySound'/*Default sound*/
         );
@@ -59,13 +59,13 @@ else{
         if($result){
             //date_default_timezone_set('Asia/Kolkata');
             //$date_time = date('m/d/Y h:i:s a', time());
-            $sql = "INSERT INTO `notification_blood` (`from`, `to`, `message`, `read`, `time`) VALUES ('".$from."', '".$name."', '".$message."', '0', NOW());";
+            $sql = "INSERT INTO `notification_blood` (`from_request`, `to_donor`, `message`, `read`, `time`) VALUES ('".$from."', '".$name."', '".$message."', '0', NOW())";
             if($conn->query($sql) === TRUE){
                 //echo "vach";
                 $response=array();
                 $response["success"]=1;
                 $response["serverResponce"]=3;
-                echo $response;
+                echo json_encode($response);
             }
             
         }

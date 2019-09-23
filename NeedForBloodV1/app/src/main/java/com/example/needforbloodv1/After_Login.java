@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
@@ -35,9 +36,10 @@ public class After_Login extends AppCompatActivity {
     private String username=null;
     TextView profile,donor_profile;
     String mCurrDonor;
-    ImageView profile_img;
-    FrameLayout search_layout,search_list,donor_profile_view;
-    EditText location_search,bgroup_search;
+    ImageView profile_img,mDonorDP;
+    FrameLayout search_layout,search_list;
+    ScrollView donor_profile_view;
+    EditText location_search,bgroup_search,mDonorMsg;
     ListView lv;
     Context c;
     final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
@@ -53,11 +55,13 @@ public class After_Login extends AppCompatActivity {
         profile=(TextView)findViewById(R.id.profile);
         profile_img=(ImageView)findViewById(R.id.profile_img);
         donor_profile=(TextView)findViewById(R.id.donor_name);
+        mDonorDP=(ImageView)findViewById(R.id.donor_dispic);
         search_layout=(FrameLayout)findViewById(R.id.search_Layout);
         search_list=(FrameLayout)findViewById(R.id.list_frame);
-        donor_profile_view=(FrameLayout)findViewById(R.id.donor_profile);
+        donor_profile_view=(ScrollView)findViewById(R.id.donor_profile);
         location_search=(EditText)findViewById(R.id.location_search);
         bgroup_search=(EditText)findViewById(R.id.group_search);
+        mDonorMsg=(EditText)findViewById(R.id.donor_msg);
         lv=(ListView)findViewById(R.id.user_list);
         username=getIntent().getStringExtra("name");
         MyVolley.setActivityHandler(responceHandler);
@@ -78,7 +82,9 @@ public class After_Login extends AppCompatActivity {
         search_layout.setVisibility(View.GONE);
         donor_profile_view.setVisibility(View.VISIBLE);
         donor_profile.setVisibility(View.VISIBLE);
-        profile_img.setVisibility(View.VISIBLE);
+        mDonorDP.setVisibility(View.VISIBLE);
+        mDonorMsg.setVisibility(View.VISIBLE);
+        profile_img.setVisibility(View.GONE);
 
         final String url = String.format(URL+"view_profile.php?name=%1$s",username);
         MyVolley.connectGET(url,this);
@@ -94,9 +100,11 @@ public class After_Login extends AppCompatActivity {
                 switch(profileType){
                     case ServerFile.DISPLAYDONOR:
                         temp=donor_profile;
+                        Glide.with(c).load(META_PATH + img_path).into(mDonorDP);
                         break;
                     case ServerFile.DISPLAYPROFILE:
                         temp=profile;
+                        Glide.with(c).load(META_PATH + img_path).into(profile_img);
                         break;
                 }
                 if(temp != null) {
@@ -104,11 +112,11 @@ public class After_Login extends AppCompatActivity {
                             "mail:" + resp.getString("mail") + "\n" +
                             "gender:" + resp.getString("gender") + "\n" +
                             "bgroup:" + resp.getString("bgroup"));
-                    Log.d("sooraz", "location:" + resp.getString("location") + "\n" +
-                            "mail:" + resp.getString("mail") + "\n" +
-                            "gender:" + resp.getString("gender") + "\n" +
-                            "bgroup:" + resp.getString("bgroup"));
-                    Glide.with(c).load(META_PATH + img_path).into(profile_img);
+//                    Log.d("sooraz", "location:" + resp.getString("location") + "\n" +
+//                            "mail:" + resp.getString("mail") + "\n" +
+//                            "gender:" + resp.getString("gender") + "\n" +
+//                            "bgroup:" + resp.getString("bgroup"));
+
                 }
             }
             else{
@@ -125,10 +133,10 @@ public class After_Login extends AppCompatActivity {
         donor_profile.setVisibility(View.VISIBLE);
         profile.setVisibility(View.VISIBLE);
         profile_img.setVisibility(View.VISIBLE);
-        profile(username);
+        profile(username,ServerFile.DISPLAYPROFILE);
     }
-    public void profile(String uname){
-        final String url = String.format(URL+"view_profile.php?name=%1$s",uname);
+    public void profile(String uname,int code){
+        final String url = String.format(URL+"view_profile.php?name=%1$s&usertype=%2$s",uname,code);
         MyVolley.connectGET(url,this);
     }
 
@@ -178,10 +186,10 @@ public class After_Login extends AppCompatActivity {
                 TextView temp=view.findViewById(R.id.list_name);
                 String name=temp.getText().toString();
                 mCurrDonor=name;
-                profile.setVisibility(View.VISIBLE);
-                profile(name);
+                profile.setVisibility(View.GONE);
+                profile(name,ServerFile.DISPLAYDONOR);
                 search_list.setVisibility(View.GONE);
-                donor_profile_view.setVisibility(View.GONE);
+                donor_profile_view.setVisibility(View.VISIBLE);
                 search_layout.setVisibility(View.GONE);
             }
         });
@@ -229,7 +237,8 @@ public class After_Login extends AppCompatActivity {
 
     public void request(View view) {
         //notifiction to donar
-        final String url = String.format(URL+"sendNotification.php?from_name=%1$s&to_name=%2$s",NFBSharedPreference.getUserName(c),mCurrDonor);
+        String msg=mDonorMsg.getText().toString();
+        final String url = String.format(URL+"sendNotification.php?from_name=%1$s&to_name=%2$s&message=%3$s",NFBSharedPreference.getUserName(c),mCurrDonor,msg);
         MyVolley.connectGET(url,this);
     }
    //callback request
@@ -253,8 +262,37 @@ public class After_Login extends AppCompatActivity {
     }
 
     public void showNotifications(View view) {
+        final String url = String.format(URL+"getNotifications.php?to=%1$s",NFBSharedPreference.getUserName(this));
+        MyVolley.connectGET(url,this);
 
     }
+    private void notificationDisplay(String response){
+        try {
+            JSONObject temp = new JSONObject(response);
+            if(temp.getInt("success")==0){
+                return;
+            }
+            switch (temp.getInt("tol_noti")) {
+                case 0:
+//                                    no notifications
+                    profile.setText("no requests are available");
+                    break;
+                default:
+
+                    final ArrayList<List<String>> list = new ArrayList<List<String>>();
+                    //list.add(Arrays.asList("Name","Location","Blood_group"));
+                    int size=temp.getInt("tol_noti");
+                    for (int i = 0; i < size; ++i) {
+                        JSONObject looptemp = new JSONObject(temp.getString(Integer.toString(i)));
+                        list.add(Arrays.asList(looptemp.getString("name"),looptemp.getString("time")));
+                    }
+                    break;
+// adapterlogic
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+}
     private Handler responceHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1){
@@ -267,6 +305,9 @@ public class After_Login extends AppCompatActivity {
                 case ServerFile.DISPLAYDONOR:
                 case ServerFile.DISPLAYPROFILE:
                     display_Profile(msg.obj.toString(),msg.arg1);
+                    break;
+                case ServerFile.GETNOTIFICATION:
+                    notificationDisplay(msg.obj.toString());
                     break;
 
 

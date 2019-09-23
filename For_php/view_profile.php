@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 // array for JSON response
 $response = array(); 
 // check for required fields
-if (isset($_GET['name'])) {
+if (isset($_GET['name'])&&isset($_GET['usertype'])) {
  
     $name = $_GET['name'];
     $sql = "SELECT * FROM my_blood WHERE Name='".$name."'";
@@ -29,7 +29,8 @@ if (isset($_GET['name'])) {
         $response["bgroup"] = $row["Blood_Group"];
         $response["location_temp"] = $row["Location_temp"];
         $response["image_path"]=$row["image_path"];
-        $response["serverResponce"]=2;
+        $response["serverResponce"]=$_GET['usertype'];
+        //2 for self 1 for donor
         echo json_encode($response);
     }
 }

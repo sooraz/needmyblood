@@ -83,19 +83,44 @@
 
         </ListView>
     </FrameLayout>
-    <FrameLayout
+    <ScrollView
         android:id="@+id/donor_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="200dip"
         android:visibility="gone"
         >
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
         <TextView
             android:id="@+id/donor_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="100dip"/>
-    </FrameLayout>
+        <EditText
+            android:id="@+id/donor_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200dip"
+            android:layout_marginStart="100dip"
+            android:hint="Enter message"/>
+        <ImageView
+            android:id="@+id/donor_dispic"
+            android:layout_marginStart="10dip"
+            android:layout_marginTop="300dip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+            <Button
+                android:layout_marginStart="300dip"
+                android:layout_marginTop="300dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Request"
+                android:onClick="request"
+                />
+        </FrameLayout>
+    </ScrollView>
     <TextView
         android:id="@+id/profile"
         android:layout_marginStart="10dip"
@@ -110,13 +135,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
-    <Button
-        android:layout_marginStart="300dip"
-        android:layout_marginTop="300dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Request"
-        android:onClick="request"
-        />
+
 
 </RelativeLayout>

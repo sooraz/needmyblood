@@ -26,14 +26,15 @@ while($r = $result->fetch_assoc()){
                       ,'time' =>$r["time"]);
     $no++;
 }
-$rows["tol_users"]=--$no;
+$rows["tol_noti"]=--$no;
 $rows["success"] = 1;
+$response["serverResponce"]=5;
 echo json_encode($rows);
 } else {
     // required field is missing
     $response["success"] = 0;
     $response["message"] = "invalid arguments";
- 
+ $response["serverResponce"]=5;
     // echoing JSON response
     echo json_encode($response);
 }
