@@ -38,7 +38,7 @@ if (isset($_POST['name']) && isset($_POST['password'])&& isset($_POST['mail'])&&
         echo json_encode($response);
     }    
     else{
-    $sql = "INSERT INTO my_blood (Name,Password,Location_Permanent,Blood_Group,Email,Gender,Location_temp,fcm_key,image_path) VALUES ('".$name."','".$pass."','".$loc."','".$bgroup."','".$mail."','".$gender."','".NULL."','".NULL."','".$img_path."')";
+    $sql = "INSERT INTO my_blood (Name,Password,Location_Permanent,Blood_Group,Email,Gender,fcm_key,image_path,longitude,latitude) VALUES ('".$name."','".$pass."','".$loc."','".$bgroup."','".$mail."','".$gender."','".NULL."','".$img_path."','".NULL."','".NULL."')";
     	if ($conn->query($sql) === TRUE) {
         	$response["success"] = 1;
         	$response["message"] = "successfully registered";

@@ -1,22 +1,24 @@
 package com.example.needforbloodv1;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +27,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.needforbloodv1.sharedpref.NFBSharedPreference;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -69,11 +74,40 @@ public class MainActivity extends AppCompatActivity {
             mErrorText = findViewById(R.id.errorText);
         }
         else{
+            //write condition for allowing
+//            Log.d("sooraz","sendLocationToServer()");
+            sendLocationToServer();
             Intent i=new Intent(c,After_Login.class);
             i.putExtra("name",uName);
             startActivity(i);
         }
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    private void sendLocationToServer() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        try {
+            FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+                                Log.d("sooraz",location.getLatitude()+" "+location.getLongitude());
+                                sendDatatoVolley(String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()));
+
+                            }
+                        }
+                    });
+        }
+        catch(SecurityException e){
+            Log.d("sooraz","permission denied "+e);
+        }
     }
 
     public void start(View view) {
@@ -127,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     case 1:
                                         Log.d("sooraz", "Logeed in success");
-
+                                        sendLocationToServer();
                                         Intent i=new Intent(c,After_Login.class);
                                         i.putExtra("name",name);
                                         startActivity(i);
@@ -312,4 +346,45 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+        private void sendDatatoVolley(String lat,String lng){
+            final String url = String.format(URL + "sendLocationData.php?lat=%1$s&lng=%2$s&name=%3$s", lat, lng, NFBSharedPreference.getUserName(this));
+            final ProgressDialog pDialog = new ProgressDialog(c);
+            pDialog.setMessage("Loading...");
+            pDialog.show();
+            StringRequest jsonObjReq = new StringRequest(Request.Method.GET,
+                    url,
+                    new Response.Listener<String>() {
+
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject temp = new JSONObject(response);
+                                Log.d("sooraz","location responce correct");
+//                                Message msg = new Message();
+//                                msg.arg1 = temp.getInt("serverResponce");
+//                                msg.obj = response;
+//                                activityHandler.sendMessage(msg);
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            pDialog.hide();
+                            pDialog.dismiss();
+                        }
+                    }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("sooraz","location responce error");
+                    pDialog.hide();
+                    pDialog.dismiss();
+                }
+
+            }
+            );
+
+// Adding request to request queue
+            AppContoller.getInstance().addToRequestQueue(jsonObjReq);
+
+        }
 }

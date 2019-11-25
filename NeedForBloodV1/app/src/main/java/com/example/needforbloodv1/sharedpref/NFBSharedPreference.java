@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 public class NFBSharedPreference {
     static final String PREF_USER_NAME= "nfb-user";
     static final String PREF_USER_FCM= "nfb-fcm";
+    static final String PREF_USER_LAT= "nfb-lat";
+    static final String PREF_USER_LNG= "nfb-lng";
 
     static SharedPreferences getSharedPreferences(Context ctx) {
         return PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -40,7 +42,20 @@ public class NFBSharedPreference {
     {
         return getSharedPreferences(ctx).getString(PREF_USER_FCM, null);
     }
-
+//    //curent location of user
+//    public static void setLocation(Context ctx, double lat, double lng)
+//    {
+//        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
+//        editor.putString(PREF_USER_LAT, Double.toString(lat));
+//        editor.putString(PREF_USER_LNG, Double.toString(lng));
+//        editor.commit();
+//    }
+//
+//    public static String getLocation(Context ctx)
+//    {
+//        return getSharedPreferences(ctx).getString(PREF_USER_LAT,null)+"$$"+getSharedPreferences(ctx).getString(PREF_USER_LNG,null);
+//
+//    }
 
 
 }

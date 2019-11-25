@@ -23,18 +23,23 @@ if (isset($_GET['from'])&&isset($_GET['to'])&&isset($_GET['time']))  {
 while($r = $result->fetch_assoc()){
     $response["success"] = 1;
     $response["message"] = $r["message"];
+    $response["name"] = $name1;
+    $response["time"] = $time;
+    $response["serverResponce"]=6;
     ///update read to 1 *******************************************************
     if($r["read"]==="0"){
     $sql = "UPDATE notification_blood SET read='1'
             WHERE from_request='".$name1."'& to_donor='".$name2."'& time='".$time."'";
     mysqli_query($conn,$sql);
     }
+    echo "sooraz $r["read"]:: ".$r["read"];
 }
-echo json_encode($rows);
+echo json_encode($response);
 } else {
     // required field is missing
     $response["success"] = 0;
     $response["message"] = "invalid arguments";
+    $response["serverResponce"]=6;
  
     // echoing JSON response
     echo json_encode($response);

@@ -28,7 +28,7 @@ while($r = $result->fetch_assoc()){
 }
 $rows["tol_noti"]=--$no;
 $rows["success"] = 1;
-$response["serverResponce"]=5;
+$rows["serverResponce"]=5;
 echo json_encode($rows);
 } else {
     // required field is missing

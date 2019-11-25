@@ -4,20 +4,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.bumptech.glide.Glide;
-import com.example.needforbloodv1.After_Login;
 import com.example.needforbloodv1.AppContoller;
-import com.example.needforbloodv1.define.ServerFile;
-import com.example.needforbloodv1.sharedpref.NFBSharedPreference;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MyVolley {

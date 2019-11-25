@@ -27,7 +27,7 @@ if (isset($_GET['name'])&&isset($_GET['usertype'])) {
         $response["mail"] = $row["Email"];
         $response["gender"] = $row["Gender"];
         $response["bgroup"] = $row["Blood_Group"];
-        $response["location_temp"] = $row["Location_temp"];
+        // $response["location_temp"] = $row["latitude"];
         $response["image_path"]=$row["image_path"];
         $response["serverResponce"]=$_GET['usertype'];
         //2 for self 1 for donor

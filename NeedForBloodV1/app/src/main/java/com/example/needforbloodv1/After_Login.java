@@ -20,8 +20,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
-import com.example.needforbloodv1.adapter.MyCustomAdapter;
+import com.example.needforbloodv1.adapter.DonorSearchListAdapter;
 import com.example.needforbloodv1.define.ServerFile;
+import com.example.needforbloodv1.enums.NFBEnum;
 import com.example.needforbloodv1.sharedpref.NFBSharedPreference;
 import com.example.needforbloodv1.volley.MyVolley;
 
@@ -34,13 +35,14 @@ import java.util.List;
 
 public class After_Login extends AppCompatActivity {
     private String username=null;
-    TextView profile,donor_profile;
+    TextView profile,mDonorProfile,mNoNotificationText;
     String mCurrDonor;
-    ImageView profile_img,mDonorDP;
-    FrameLayout search_layout,search_list;
-    ScrollView donor_profile_view;
-    EditText location_search,bgroup_search,mDonorMsg;
-    ListView lv;
+    ImageView mProfileImg,mDonorDP;
+    FrameLayout mSearchLayout,mSearchList, mSettingsView;
+    ScrollView mDonorProfileView,mNotificationView;
+    EditText mLocationText,mBGrouptext,mDonorMsg,mMapKM;
+    ListView searchListView,notificationListView;
+    
     Context c;
     final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
     final private String META_PATH="http://sooraz.000webhostapp.com/";
@@ -50,44 +52,29 @@ public class After_Login extends AppCompatActivity {
         setContentView(R.layout.activity_after__login);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //Button b=(Button)findViewById(R.id.view_profile);
-        c=this;
-        profile=(TextView)findViewById(R.id.profile);
-        profile_img=(ImageView)findViewById(R.id.profile_img);
-        donor_profile=(TextView)findViewById(R.id.donor_name);
-        mDonorDP=(ImageView)findViewById(R.id.donor_dispic);
-        search_layout=(FrameLayout)findViewById(R.id.search_Layout);
-        search_list=(FrameLayout)findViewById(R.id.list_frame);
-        donor_profile_view=(ScrollView)findViewById(R.id.donor_profile);
-        location_search=(EditText)findViewById(R.id.location_search);
-        bgroup_search=(EditText)findViewById(R.id.group_search);
-        mDonorMsg=(EditText)findViewById(R.id.donor_msg);
-        lv=(ListView)findViewById(R.id.user_list);
         username=getIntent().getStringExtra("name");
         MyVolley.setActivityHandler(responceHandler);
-        initList();
+        init();
     }
-    private void initList(){
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                display_Donor();
-            }
-        });
-    }
-    public void display_Donor(){
 
-        profile.setVisibility(View.GONE);
-        search_list.setVisibility(View.GONE);
-        search_layout.setVisibility(View.GONE);
-        donor_profile_view.setVisibility(View.VISIBLE);
-        donor_profile.setVisibility(View.VISIBLE);
-        mDonorDP.setVisibility(View.VISIBLE);
-        mDonorMsg.setVisibility(View.VISIBLE);
-        profile_img.setVisibility(View.GONE);
-
-        final String url = String.format(URL+"view_profile.php?name=%1$s",username);
-        MyVolley.connectGET(url,this);
+    private void init(){
+        c=this;
+        profile=(TextView)findViewById(R.id.profile);
+        mProfileImg=(ImageView)findViewById(R.id.profile_img);
+        mDonorProfile=(TextView)findViewById(R.id.donor_name);
+        mDonorDP=(ImageView)findViewById(R.id.donor_dispic);
+        mSearchLayout=(FrameLayout)findViewById(R.id.search_Layout);//search
+        mSearchList=(FrameLayout)findViewById(R.id.list_frame);//search results
+        mSettingsView=(FrameLayout)findViewById(R.id.settings_view);
+        mDonorProfileView=(ScrollView)findViewById(R.id.donor_profile);
+        mNotificationView=(ScrollView)findViewById(R.id.notification_view);
+        mNoNotificationText=(TextView)findViewById(R.id.no_notification);
+        mLocationText=(EditText)findViewById(R.id.location_search);
+        mBGrouptext=(EditText)findViewById(R.id.group_search);
+        mDonorMsg=(EditText)findViewById(R.id.donor_msg);
+        mMapKM=(EditText)findViewById(R.id.map_km);
+        searchListView=(ListView)findViewById(R.id.user_list);
+        notificationListView=(ListView)findViewById(R.id.notification_list);
     }
     //method for both donor and self
     private void display_Profile(String responce,int profileType){
@@ -99,12 +86,12 @@ public class After_Login extends AppCompatActivity {
                 img_path = resp.getString("image_path");
                 switch(profileType){
                     case ServerFile.DISPLAYDONOR:
-                        temp=donor_profile;
+                        temp=mDonorProfile;
                         Glide.with(c).load(META_PATH + img_path).into(mDonorDP);
                         break;
                     case ServerFile.DISPLAYPROFILE:
                         temp=profile;
-                        Glide.with(c).load(META_PATH + img_path).into(profile_img);
+                        Glide.with(c).load(META_PATH + img_path).into(mProfileImg);
                         break;
                 }
                 if(temp != null) {
@@ -112,10 +99,6 @@ public class After_Login extends AppCompatActivity {
                             "mail:" + resp.getString("mail") + "\n" +
                             "gender:" + resp.getString("gender") + "\n" +
                             "bgroup:" + resp.getString("bgroup"));
-//                    Log.d("sooraz", "location:" + resp.getString("location") + "\n" +
-//                            "mail:" + resp.getString("mail") + "\n" +
-//                            "gender:" + resp.getString("gender") + "\n" +
-//                            "bgroup:" + resp.getString("bgroup"));
 
                 }
             }
@@ -127,12 +110,10 @@ public class After_Login extends AppCompatActivity {
         }
     }
     public void viewProfile(View v) {
-        search_layout.setVisibility(View.GONE);
-        search_list.setVisibility(View.GONE);
-        donor_profile_view.setVisibility(View.GONE);
-        donor_profile.setVisibility(View.VISIBLE);
+        makeAllViewGone();
+        mDonorProfile.setVisibility(View.VISIBLE);
         profile.setVisibility(View.VISIBLE);
-        profile_img.setVisibility(View.VISIBLE);
+        mProfileImg.setVisibility(View.VISIBLE);
         profile(username,ServerFile.DISPLAYPROFILE);
     }
     public void profile(String uname,int code){
@@ -142,13 +123,11 @@ public class After_Login extends AppCompatActivity {
 
 
     public void search(View v) {
-
-        profile.setVisibility(View.GONE);
-        search_layout.setVisibility(View.GONE);
-        donor_profile_view.setVisibility(View.GONE);
-        search_list.setVisibility(View.VISIBLE);
-        String location = location_search.getText().toString();
-        String bgroup = bgroup_search.getText().toString();
+        makeAllViewGone();
+        mDonorProfileView.setVisibility(View.GONE);
+        mSearchList.setVisibility(View.VISIBLE);
+        String location = mLocationText.getText().toString();
+        String bgroup = mBGrouptext.getText().toString();
         final String url = String.format(URL + "search.php?location=%1$s&bgroup=%2$s", location, bgroup);
         MyVolley.connectGET(url,this);
     }
@@ -169,9 +148,9 @@ public class After_Login extends AppCompatActivity {
                                         JSONObject looptemp = new JSONObject(temp.getString(Integer.toString(i)));
                                         list.add(Arrays.asList(looptemp.getString("image_path"),looptemp.getString("name"),looptemp.getString("loc_p"),looptemp.getString("bgroup")));
                                     }
-                                    final MyCustomAdapter adapter = new MyCustomAdapter(c,R.layout.list_item, list);
-                                    lv.setAdapter(adapter);
-                                    setLister(lv);
+                                    final DonorSearchListAdapter adapter = new DonorSearchListAdapter(c,R.layout.donor_search_item, list, NFBEnum.ADAPTERTYPE.DONOR);
+                                    searchListView.setAdapter(adapter);
+                                    setListner(searchListView, NFBEnum.LISTTYPE.DONOR);
                                     break;
 
                             }
@@ -179,28 +158,50 @@ public class After_Login extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-    private void setLister(ListView lv) {
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void setListner(ListView mListView, NFBEnum.LISTTYPE type) {
+        switch (type){
+            case DONOR:
+                donorListItem(mListView);
+                break;
+            case NOTIFICATION:
+                notificationListItem(mListView);
+                break;
+        }
+    }
+    private void donorListItem(ListView mListView){
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView temp=view.findViewById(R.id.list_name);
-                String name=temp.getText().toString();
-                mCurrDonor=name;
+                TextView temp = view.findViewById(R.id.list_name);
+                String name = temp.getText().toString();
+                mCurrDonor = name;
                 profile.setVisibility(View.GONE);
-                profile(name,ServerFile.DISPLAYDONOR);
-                search_list.setVisibility(View.GONE);
-                donor_profile_view.setVisibility(View.VISIBLE);
-                search_layout.setVisibility(View.GONE);
+                profile(name, ServerFile.DISPLAYDONOR);
+                makeAllViewGone();
+                mDonorProfileView.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+    private void notificationListItem(ListView mListView){
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView temp = view.findViewById(R.id.notification_sender);
+                String name = temp.getText().toString();
+                temp = view.findViewById(R.id.notification_time);
+                String time = temp.getText().toString();
+                makeAllViewGone();
+                final String url = String.format(URL + "viewNotification.php?from=%1$s&to=%2$s&time=%2$s", name, NFBSharedPreference.getUserName(c),time);
+                MyVolley.connectGET(url,c);
             }
         });
     }
 
-    public void search_layout(View view) {
+    public void showSearchLayout(View view) {
+        makeAllViewGone();
         profile.setVisibility(View.GONE);
-        search_list.setVisibility(View.GONE);
-        donor_profile_view.setVisibility(View.GONE);
-        profile_img.setVisibility(View.GONE);
-        search_layout.setVisibility(View.VISIBLE);
+        mProfileImg.setVisibility(View.GONE);
+        mSearchLayout.setVisibility(View.VISIBLE);
     }
 
     public void logout(View view) {
@@ -210,6 +211,9 @@ public class After_Login extends AppCompatActivity {
         NFBSharedPreference.clearData(c);
         Intent i=new Intent(c,MainActivity.class);
         startActivity(i);
+        finish();
+
+
     }
 
     @Override
@@ -241,6 +245,31 @@ public class After_Login extends AppCompatActivity {
         final String url = String.format(URL+"sendNotification.php?from_name=%1$s&to_name=%2$s&message=%3$s",NFBSharedPreference.getUserName(c),mCurrDonor,msg);
         MyVolley.connectGET(url,this);
     }
+
+    private void viewNotification(String response){
+        try {
+            JSONObject temp = new JSONObject(response);
+            switch (temp.getInt("success")) {
+                case 1:
+                     //name,time,message
+                    String tex="from :: "+temp.getString("name")
+                            +"\n time :: "+temp.getString("time")
+                            +"\n message :: "+temp.getString("message")
+                            +"\n to :: "+NFBSharedPreference.getUserName(c);
+                            ;
+                    Toast.makeText(After_Login.this, tex, Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    Log.d("sooraz"," viewNotification send failed");
+                    //error
+
+            }
+        }catch (Exception e) {
+            Log.d("sooraz","error viewNotification");
+            e.printStackTrace();
+        }
+    }
+
    //callback request
     private void sendNotificationAck(String response) {
         Log.d("sooraz","mCurrDonor: "+mCurrDonor+" NFBSharedPreference.getUserName(c): "+NFBSharedPreference.getUserName(c));
@@ -272,13 +301,16 @@ public class After_Login extends AppCompatActivity {
             if(temp.getInt("success")==0){
                 return;
             }
+            makeAllViewGone();
+            mNotificationView.setVisibility(View.VISIBLE);
             switch (temp.getInt("tol_noti")) {
                 case 0:
 //                                    no notifications
+                    notificationListView.setVisibility(View.GONE);
+                    mNoNotificationText.setVisibility(View.VISIBLE);
                     profile.setText("no requests are available");
                     break;
                 default:
-
                     final ArrayList<List<String>> list = new ArrayList<List<String>>();
                     //list.add(Arrays.asList("Name","Location","Blood_group"));
                     int size=temp.getInt("tol_noti");
@@ -286,13 +318,21 @@ public class After_Login extends AppCompatActivity {
                         JSONObject looptemp = new JSONObject(temp.getString(Integer.toString(i)));
                         list.add(Arrays.asList(looptemp.getString("name"),looptemp.getString("time")));
                     }
+                    displayNotificationList(list);
                     break;
-// adapterlogic
             }
         }catch (Exception e) {
             e.printStackTrace();
         }
 }
+    private void displayNotificationList(ArrayList<List<String>> mList){
+        mNoNotificationText.setVisibility(View.GONE);
+        notificationListView.setVisibility(View.VISIBLE);
+
+        DonorSearchListAdapter notificationAdapter=new DonorSearchListAdapter(c,R.layout.notification_list,mList,NFBEnum.ADAPTERTYPE.NOTIFICATION);
+        notificationListView.setAdapter(notificationAdapter);
+        setListner(notificationListView, NFBEnum.LISTTYPE.NOTIFICATION);
+    }
     private Handler responceHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.arg1){
@@ -306,15 +346,43 @@ public class After_Login extends AppCompatActivity {
                 case ServerFile.DISPLAYPROFILE:
                     display_Profile(msg.obj.toString(),msg.arg1);
                     break;
-                case ServerFile.GETNOTIFICATION:
+                case ServerFile.GETNOTIFICATIONS:
                     notificationDisplay(msg.obj.toString());
+                    break;
+                case ServerFile.VIEWNOTIFICATION:
+                    viewNotification(msg.obj.toString());
                     break;
 
 
             }
         }
     };
+    private void makeAllViewGone(){
+        mSearchLayout.setVisibility(View.GONE);
+        mSearchList.setVisibility(View.GONE);
+        mDonorProfileView.setVisibility(View.GONE);
+        mNotificationView.setVisibility(View.GONE);
+        mSettingsView.setVisibility(View.GONE);
+    }
 
+    public void displayMap(View view) {
+//        int km=Integer.parseInt(mMapKM.getText().toString());
+
+
+
+        Intent i=new Intent(c,MapsActivity.class);
+        startActivity(i);
+    }
+
+    public void viewSettings(View view) {
+        makeAllViewGone();
+        mSettingsView.setVisibility(View.VISIBLE);
+
+    }
+
+    public void updateLocation(View view) {
+
+    }
 }
 
 
