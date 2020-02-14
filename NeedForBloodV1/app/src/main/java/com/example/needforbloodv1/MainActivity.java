@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             //write condition for allowing
 //            Log.d("sooraz","sendLocationToServer()");
             sendLocationToServer();
-            Intent i=new Intent(c,After_Login.class);
+            Intent i=new Intent(c,AfterLogin_2.class);
             i.putExtra("name",uName);
             startActivity(i);
         }
