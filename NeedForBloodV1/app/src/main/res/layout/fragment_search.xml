@@ -2,10 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/search_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+    <FrameLayout
+        android:id="@+id/search_Layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
                 <EditText
                     android:id="@+id/group_search"
                     android:layout_width="wrap_content"
@@ -45,5 +48,49 @@
                     android:layout_marginTop="400dip"
                     android:onClick="displayMap"
                     android:text="by map"/>
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/list_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dip"
+        android:visibility="gone"
+        >
+        <TextView
+            android:id="@+id/no_users_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="no users by your request"
+            android:visibility="gone"/>
+        <ListView
+            android:id="@+id/user_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
+        </ListView>
+    </FrameLayout>
+    <LinearLayout
+        android:id="@+id/donor_profile"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/donor_text"
+            android:layout_width="186dp"
+            android:layout_height="146dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="100dp"
+            android:background="@color/cardview_dark_background" />
+
+        <ImageView
+            android:id="@+id/donor_img"
+            android:layout_width="126dp"
+            android:layout_height="202dp"
+            android:background="@color/cardview_dark_background"
+            android:layout_marginTop="240dp"
+            android:layout_marginLeft="100dp"
+            />
+    </LinearLayout>
         </FrameLayout>
