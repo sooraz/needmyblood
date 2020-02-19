@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
+import com.example.needforbloodv1.activityRefernce.ActivityInterface;
 import com.example.needforbloodv1.adapter.DonorSearchListAdapter;
 import com.example.needforbloodv1.define.ServerFile;
 import com.example.needforbloodv1.enums.NFBEnum;
@@ -42,6 +43,7 @@ public class After_Login extends AppCompatActivity {
     ScrollView mDonorProfileView,mNotificationView;
     EditText mLocationText,mBGrouptext,mDonorMsg,mMapKM;
     ListView searchListView,notificationListView;
+    ActivityInterface mActivity;
     
     Context c;
     final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
