@@ -8,4 +8,7 @@ public class NFBEnum {
     public enum LISTTYPE{
         DONOR,NOTIFICATION
     }
+    public enum FRAGMENTTYPE{
+        PROFILE,SEARCH
+    }
 }

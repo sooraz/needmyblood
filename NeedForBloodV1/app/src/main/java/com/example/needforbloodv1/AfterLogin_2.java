@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 
 import androidx.navigation.NavController;
@@ -21,10 +22,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.widget.TextView;
 
+import com.example.needforbloodv1.Log.NFBLog;
 import com.example.needforbloodv1.activityRefernce.ActivityInterface;
+import com.example.needforbloodv1.define.HandlerType;
 import com.example.needforbloodv1.define.ServerFile;
 import com.example.needforbloodv1.ui.search.SearchFragment;
 import com.example.needforbloodv1.ui.user_profile.ProfileFragment;
+import com.example.needforbloodv1.utils.NFBUtils;
 import com.example.needforbloodv1.volley.MyVolley;
 
 import org.json.JSONException;
@@ -37,6 +41,7 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
     SearchFragment mSearch;
     String username;
     Context c;
+    ActivityInterface activityRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,9 +68,13 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        activityRef = this;
         username=getIntent().getStringExtra("name");
+        NFBLog.debugOut("sooraz name::"+username);
         MyVolley.setActivityHandler(responceHandler);
-
+        NFBUtils.setActivityHandler(activityHandler);
+//        NFBUtils.setActivityHandler(activityHandler);
+        //getFragmentManager().addOnBackStackChangedListener();
 
     }
 
@@ -73,8 +82,8 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
     protected void onResume() {
         super.onResume();
         init();
-
-        profile(username,ServerFile.DISPLAYPROFILE);
+//        mProfile = ProfileFragment.getProfileFragment();
+//        profile(username,ServerFile.DISPLAYPROFILE);
     }
 
 
@@ -92,28 +101,18 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-//    private String username=null;
-//    TextView profile,mDonorProfile,mNoNotificationText;
-//    String mCurrDonor;
-//    ImageView mProfileImg,mDonorDP;
-//    FrameLayout mSearchLayout,mSearchList, mSettingsView;
-//    ScrollView mDonorProfileView,mNotificationView;
-//    EditText mLocationText,mBGrouptext,mDonorMsg,mMapKM;
-//    ListView searchListView,notificationListView;
-//
-//    Context c;
+
     final private String URL="http://sooraz.000webhostapp.com/need_for_blood/";
     final private String META_PATH="http://sooraz.000webhostapp.com/";
 //
     private void init(){
         c=this;
-        mProfile = ProfileFragment.getProfileFragment();
-        mSearch = SearchFragment.getSearchFragment();
-        mSearch.setComunitcation(this);
+        NFBUtils.setContext(c);
     }
     //method for both donor and self
     private void display_Profile(String responce,int profileType){
         try {
+            NFBLog.debugOut("yug display_Profile");
             JSONObject resp = new JSONObject(responce);
             TextView temp=null;
             if(resp.getInt("success")==1) {
@@ -126,9 +125,12 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                 String imgData=META_PATH + img_path;
                 switch(profileType){
                     case ServerFile.DISPLAYDONOR:
+//                        mSearch.setComunication(this);
                         mSearch.setData(tex,imgData,c);
                         break;
                     case ServerFile.DISPLAYPROFILE:
+
+                        NFBLog.debugOut("yug display_Profile mProfile"+mProfile);
                         mProfile.setData(tex,imgData,c);
                         break;
                 }
@@ -140,17 +142,11 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
             e.printStackTrace();
         }
     }
-//    public void viewProfile(View v) {
-//        makeAllViewGone();
-//        mDonorProfile.setVisibility(View.VISIBLE);
-//        profile.setVisibility(View.VISIBLE);
-//        mProfileImg.setVisibility(View.VISIBLE);
-//        profile(username,ServerFile.DISPLAYPROFILE);
-//    }
 
     @Override
     public void profile(String uname,int code){
         final String url = String.format(URL+"view_profile.php?name=%1$s&usertype=%2$s",uname,code);
+        NFBLog.debugOut("yug profile");
         MyVolley.connectGET(url,this);
     }
 //
@@ -334,6 +330,7 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                     break;
                 case ServerFile.DISPLAYDONOR:
                 case ServerFile.DISPLAYPROFILE:
+                    NFBLog.debugOut("yug responce");
                     display_Profile(msg.obj.toString(),msg.arg1);
                     break;
                 case ServerFile.GETNOTIFICATIONS:
@@ -397,4 +394,30 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
 //    public void updateLocation(View view) {
 //
 //    }
+//    FragmentManager.OnBackStackChangedListener stackChangedListener =new FragmentManager.OnBackStackChangedListener() {
+//        @Override
+//        public void onBackStackChanged() {
+//            NFBLog.debugOut("sooraz");
+//        }
+//    };
+    private Handler activityHandler =new Handler()
+    {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.arg1){
+                case HandlerType.SEARCH_FRAGMENT_ATTACHED:
+                    NFBLog.debugOut("sooraz SEARCH_F");
+                    mSearch = SearchFragment.getSearchFragment();
+                    if(mSearch != null){}
+                    mSearch.setComunication(activityRef);
+                    break;
+                case HandlerType.PROFILE_FRAGMENT_ATTACHED:
+                    NFBLog.debugOut("yug PROFILE_F");
+                    mProfile = ProfileFragment.getProfileFragment();
+                    profile(username,ServerFile.DISPLAYPROFILE);
+                    break;
+            }
+        }
+    };
 }
