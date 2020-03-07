@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.needforbloodv1.Log.NFBLog;
 import com.example.needforbloodv1.R;
 import com.example.needforbloodv1.define.HandlerType;
@@ -22,19 +23,21 @@ public class ProfileFragment extends Fragment {
 
 //    private ProfileViewModel profileViewModel;
     private static ProfileFragment mfrag = null;
-    TextView textDataView;
+    private TextView mNameView,mEmaiView,mLocationView,mGenderView,mBGroupView;
     ImageView imageView;
     private Handler activityHandler;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
-        textDataView = (TextView)root.findViewById(R.id.profile);
+        mNameView = (TextView)root.findViewById(R.id.profile_name);
+        mEmaiView = (TextView)root.findViewById(R.id.profile_email);
+        mLocationView = (TextView)root.findViewById(R.id.profile_location);
+        mBGroupView = (TextView)root.findViewById(R.id.profile_bgroup);
+        mGenderView = (TextView)root.findViewById(R.id.profile_gender);
         imageView = (ImageView)root.findViewById(R.id.profile_img);
         mfrag = this;
         activityHandler = NFBUtils.getActivityHandler();
-        NFBLog.debugOut("yug oncreateView");
         if(activityHandler != null){
-            NFBLog.debugOut("yug 1");
             Message msg =new Message();
             msg.arg1=HandlerType.PROFILE_FRAGMENT_ATTACHED;
             activityHandler.sendMessage(msg);
@@ -44,8 +47,16 @@ public class ProfileFragment extends Fragment {
     public static ProfileFragment getProfileFragment(){
         return mfrag;
     }
-    public void setData(String textData,String imageData,Context context){
-        Glide.with(context).load(imageData).into(imageView);
-        textDataView.setText(textData);
+    public void setData(String name,String email,String location,String bgroup,String gender,String imageData,ImageView dp,Context context){
+        Glide.with(context).load(imageData)
+                .apply(RequestOptions.circleCropTransform())
+                .into(dp);
+
+        Glide.with(context).load(imageData).apply(RequestOptions.circleCropTransform()).into(imageView);
+        mNameView.setText(name);
+        mEmaiView.setText(email);
+        mLocationView.setText(location);
+        mBGroupView.setText(bgroup);
+        mGenderView.setText(gender);
     }
 }

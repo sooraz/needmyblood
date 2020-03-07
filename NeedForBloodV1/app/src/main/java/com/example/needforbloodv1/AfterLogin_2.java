@@ -1,6 +1,7 @@
 package com.example.needforbloodv1;
 
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,6 +21,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.needforbloodv1.Log.NFBLog;
@@ -42,6 +44,8 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
     String username;
     Context c;
     ActivityInterface activityRef;
+    ImageView dp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +60,7 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                         .setAction("Action", null).show();
             }
         });
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -65,12 +70,18 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                 R.id.nav_tools, R.id.nav_share, R.id.nav_send)
                 .setDrawerLayout(drawer)
                 .build();
+
+        View headerView = navigationView.getHeaderView(0);
+        TextView navUsername = (TextView) headerView.findViewById(R.id.nav_side_text);
+        dp = (ImageView) headerView.findViewById(R.id.nav_side_dp);
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         activityRef = this;
         username=getIntent().getStringExtra("name");
         NFBLog.debugOut("sooraz name::"+username);
+        navUsername.setText("Hi "+username);
         MyVolley.setActivityHandler(responceHandler);
         NFBUtils.setActivityHandler(activityHandler);
 //        NFBUtils.setActivityHandler(activityHandler);
@@ -112,7 +123,6 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
     //method for both donor and self
     private void display_Profile(String responce,int profileType){
         try {
-            NFBLog.debugOut("yug display_Profile");
             JSONObject resp = new JSONObject(responce);
             TextView temp=null;
             if(resp.getInt("success")==1) {
@@ -122,16 +132,18 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                         "mail:" + resp.getString("mail") + "\n" +
                         "gender:" + resp.getString("gender") + "\n" +
                         "bgroup:" + resp.getString("bgroup");
+                String location = resp.getString("location");
+                String mail = resp.getString("mail");
+                String gender = resp.getString("gender");
+                String bgroup = resp.getString("bgroup");
                 String imgData=META_PATH + img_path;
                 switch(profileType){
                     case ServerFile.DISPLAYDONOR:
 //                        mSearch.setComunication(this);
-                        mSearch.setData(tex,imgData,c);
+                        mSearch.setData(location,mail,bgroup,gender,imgData,c);
                         break;
                     case ServerFile.DISPLAYPROFILE:
-
-                        NFBLog.debugOut("yug display_Profile mProfile"+mProfile);
-                        mProfile.setData(tex,imgData,c);
+                        mProfile.setData(username,location,mail,bgroup,gender,imgData,dp,c);
                         break;
                 }
             }
@@ -146,7 +158,6 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
     @Override
     public void profile(String uname,int code){
         final String url = String.format(URL+"view_profile.php?name=%1$s&usertype=%2$s",uname,code);
-        NFBLog.debugOut("yug profile");
         MyVolley.connectGET(url,this);
     }
 //
@@ -330,11 +341,10 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
                     break;
                 case ServerFile.DISPLAYDONOR:
                 case ServerFile.DISPLAYPROFILE:
-                    NFBLog.debugOut("yug responce");
                     display_Profile(msg.obj.toString(),msg.arg1);
                     break;
                 case ServerFile.GETNOTIFICATIONS:
-//                    notificationDisplay(msg.obj.toString());
+                    //notificationDisplay(msg.obj.toString());
                     break;
                 case ServerFile.VIEWNOTIFICATION:
 //                    viewNotification(msg.obj.toString());
@@ -344,6 +354,12 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
             }
         }
     };
+    @Override
+    public void requestBlood(String donorName,String requestText) {
+        //notifiction to donar
+        final String url = String.format(URL+"sendNotification.php?from_name=%1$s&to_name=%2$s&message=%3$s",username,donorName,requestText);
+        MyVolley.connectGET(url,this);
+    }
 //    private Handler requestHandler = new Handler() {
 //        public void handleMessage(Message msg) {
 //            switch (msg.arg1){
@@ -407,13 +423,13 @@ public class AfterLogin_2 extends AppCompatActivity implements ActivityInterface
         public void handleMessage(Message msg) {
             switch (msg.arg1){
                 case HandlerType.SEARCH_FRAGMENT_ATTACHED:
-                    NFBLog.debugOut("sooraz SEARCH_F");
                     mSearch = SearchFragment.getSearchFragment();
-                    if(mSearch != null){}
-                    mSearch.setComunication(activityRef);
+                    if(mSearch != null){
+                        mSearch.setComunication(activityRef);
+                    }
+
                     break;
                 case HandlerType.PROFILE_FRAGMENT_ATTACHED:
-                    NFBLog.debugOut("yug PROFILE_F");
                     mProfile = ProfileFragment.getProfileFragment();
                     profile(username,ServerFile.DISPLAYPROFILE);
                     break;

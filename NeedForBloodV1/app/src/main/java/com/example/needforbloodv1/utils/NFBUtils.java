@@ -18,12 +18,9 @@ public class NFBUtils {
     }
 
     public static void setActivityHandler(Handler handler) {
-        NFBLog.debugOut("yug setiing handler ::"+handler);
         activityHandler = handler;
-        NFBLog.debugOut("yug setiing activityHandler ::"+activityHandler);
     }
     public static Handler getActivityHandler(){
-        NFBLog.debugOut("yug getiing handler activityHandler:: "+activityHandler);
         return activityHandler;
     }
 

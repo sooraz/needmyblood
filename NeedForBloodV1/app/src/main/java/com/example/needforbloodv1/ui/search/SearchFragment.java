@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.needforbloodv1.Log.NFBLog;
 import com.example.needforbloodv1.MapsActivity;
 import com.example.needforbloodv1.R;
@@ -41,16 +42,18 @@ public class SearchFragment extends Fragment {
 
     private SearchViewModel searchViewModel;
     private static SearchFragment mFrag;
-    private EditText locationEditTextView,bGroupEditTextView,distanceEditTextView;
-    private TextView noUserTextView,mDonorDetail;
+    private EditText locationEditTextView,bGroupEditTextView,distanceEditTextView,mDonorRequestEditTextView;
+    private TextView noUserTextView;
+    private TextView mNameView,mEmaiView,mLocationView,mGenderView,mBGroupView;
     private ImageView mDonorDP;
-    private Button searchByText,searchByMap;
+    private Button searchByText,searchByMap,requestButton;
     private Context context;
     private FrameLayout searchLayout,listLayout;
     private LinearLayout donorProfileLayout;
     private ListView searchResultListView;
     private static ActivityInterface ref;
     private static Handler activityHandler;
+    private String donorName;
 
     public static SearchFragment getSearchFragment() {
         return mFrag;
@@ -78,8 +81,14 @@ public class SearchFragment extends Fragment {
         searchByMap = (Button)root.findViewById(R.id.search_maps);
         searchResultListView = (ListView)root.findViewById(R.id.user_list);
         noUserTextView = (TextView)root.findViewById(R.id.no_users_text);
-        mDonorDetail = (TextView)root.findViewById(R.id.donor_msg);
-        mDonorDP = (ImageView)root.findViewById(R.id.donor_img);
+        mNameView = (TextView)root.findViewById(R.id.profile_name);
+        mEmaiView = (TextView)root.findViewById(R.id.profile_email);
+        mLocationView = (TextView)root.findViewById(R.id.profile_location);
+        mBGroupView = (TextView)root.findViewById(R.id.profile_bgroup);
+        mGenderView = (TextView)root.findViewById(R.id.profile_gender);
+        mDonorDP = (ImageView)root.findViewById(R.id.profile_img);
+//        mDonorRequestEditTextView = (EditText)root.findViewById(R.id.donor_request_text);
+//        requestButton = (Button)root.findViewById(R.id.donor_request_button);
         activityHandler = NFBUtils.getActivityHandler();
         Message msg =new Message();
         msg.arg1=HandlerType.SEARCH_FRAGMENT_ATTACHED;
@@ -89,6 +98,7 @@ public class SearchFragment extends Fragment {
     private void initClickListners() {
        searchByMap.setOnClickListener(searchFragmentButtonListner);
        searchByText.setOnClickListener(searchFragmentButtonListner);
+//       requestButton.setOnClickListener(searchFragmentButtonListner);
     }
     View.OnClickListener searchFragmentButtonListner =new View.OnClickListener() {
         @Override
@@ -110,6 +120,10 @@ public class SearchFragment extends Fragment {
                     Intent i=new Intent(context, MapsActivity.class);
                     startActivity(i);
                     break;
+//                case R.id.donor_request_button:
+//                    String requestText = mDonorRequestEditTextView.getText().toString();
+//                    ref.requestBlood(donorName,requestText);
+//                    break;
             }
         }
     };
@@ -125,6 +139,7 @@ public class SearchFragment extends Fragment {
     public void search(String response){
         try {
             JSONObject temp = new JSONObject(response);
+            makeAllViewsGone();
             listLayout.setVisibility(View.VISIBLE);
             switch (temp.getInt("tol_users")) {
                 case 0:
@@ -133,7 +148,6 @@ public class SearchFragment extends Fragment {
                     searchResultListView.setVisibility(View.GONE);
                     break;
                 default:
-                    NFBLog.debugOut("yug arrey");
                     noUserTextView.setVisibility(View.GONE);
                     searchResultListView.setVisibility(View.VISIBLE);
                     final ArrayList<List<String>> list = new ArrayList<List<String>>();
@@ -144,7 +158,6 @@ public class SearchFragment extends Fragment {
                         list.add(Arrays.asList(looptemp.getString("image_path"),looptemp.getString("name"),looptemp.getString("loc_p"),looptemp.getString("bgroup")));
                     }
                     final DonorSearchListAdapter adapter = new DonorSearchListAdapter(context,R.layout.donor_search_item, list, NFBEnum.ADAPTERTYPE.DONOR);
-                    NFBLog.debugOut("yug adapter:: "+adapter);
                     searchResultListView.setAdapter(adapter);
                     donorListItem(searchResultListView);
                     break;
@@ -159,16 +172,26 @@ public class SearchFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView temp = view.findViewById(R.id.list_name);
-                String name = temp.getText().toString();
-                ref.profile(name, ServerFile.DISPLAYDONOR);
+                donorName = temp.getText().toString();
+                ref.profile(donorName, ServerFile.DISPLAYDONOR);
             }
         });
     }
 
-    public void setData(String textData, String imageData, Context c) {
+    public void setData(String email,String location,String bgroup,String gender,String imageData,Context context){
+        makeAllViewsGone();
         donorProfileLayout.setVisibility(View.VISIBLE);
-        Glide.with(context).load(imageData).into(mDonorDP);
-        mDonorDetail.setText(textData);
+        mNameView.setText(donorName);
+        mEmaiView.setText(email);
+        mLocationView.setText(location);
+        mBGroupView.setText(bgroup);
+        mGenderView.setText(gender);
+        Glide.with(context).load(imageData).apply(RequestOptions.circleCropTransform()).into(mDonorDP);
     }
 
+    private void makeAllViewsGone(){
+        donorProfileLayout.setVisibility(View.GONE);
+        listLayout.setVisibility(View.GONE);
+        searchLayout.setVisibility(View.GONE);
+    }
 }

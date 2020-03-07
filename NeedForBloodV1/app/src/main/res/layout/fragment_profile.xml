@@ -5,21 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/profile"
-        android:layout_width="186dp"
-        android:layout_height="146dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="100dp"
-        android:background="@color/cardview_dark_background" />
-
-    <ImageView
-        android:id="@+id/profile_img"
-        android:layout_width="126dp"
-        android:layout_height="202dp"
-        android:background="@color/cardview_dark_background"
-        android:layout_marginTop="240dp"
-        android:layout_marginLeft="100dp"
+    <include layout="@layout/fragment_share"/>
 />
 </LinearLayout>
